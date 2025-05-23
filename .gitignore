@@ -1,0 +1,74 @@
+# ==========================
+# Python
+# ==========================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.pyd
+*.so
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Python virtual environments
+venv/
+env/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Packages and distribution files
+*.egg
+*.egg-info/
+dist/
+build/
+pip-wheel-metadata/
+
+# Editable installs
+*.egg-link
+
+# ==========================
+# Data and Logs
+# ==========================
+# Data files (optional, keep if you version control them)
+*.csv
+*.h5
+*.hdf5
+*.npz
+*.npy
+*.pt
+*.pth
+*.ckpt
+
+# Model checkpoints
+checkpoints/
+models/
+*.pt
+*.pth
+
+# Tensorboard logs
+runs/
+logs/
+events.out.tfevents.*
+
+# ==========================
+# VSCode / PyCharm IDE
+# ==========================
+.vscode/
+.idea/
+
+# ==========================
+# OS Files
+# ==========================
+.DS_Store
+Thumbs.db
+
+# ==========================
+# Miscellaneous
+# ==========================
+# Ignore files from colab or cloud environments
+*.ipynb_convert/
+.colab/
