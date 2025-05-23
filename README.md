@@ -107,3 +107,12 @@ python run_sims_ensemble_script.py --seed_combination <SEED1,SEED2,...> \
 ```
 
 ---
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](./LICENSE.md) file for details.
+
+
+## Bug reporting 
+
+Please report any bugs or issues to Carlo Musolino at [musolino@itp.uni-frankfurt.de](mailto:musolino@itp.uni-frankfurt.de)
