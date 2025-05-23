@@ -54,6 +54,11 @@ You can verify it using the provided SHA256 checksum:
 sha256sum -c model_checksum.sha256
 ```
 
+However, note that the results presented in the paper were obtained
+on an AMD Mi50 platform with `rocm` version `6.2.1` and `pyTorch` version `2.5.1`.
+Results might be slightly different on different platforms using different software.
+
+
 To instantiate a full neural Riemann solver, use:
 
 ```python
