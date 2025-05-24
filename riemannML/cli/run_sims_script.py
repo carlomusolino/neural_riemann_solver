@@ -1,8 +1,8 @@
 import argparse 
 
-from run_sims_main import main 
+from .run_sims_main import run_sims 
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--seed", type=int, required=True)
     parser.add_argument("--n_neurons", type=int, required=True)
@@ -11,4 +11,7 @@ if __name__ == "__main__":
     parser.add_argument("--basedir", type=str, default='../models')
     args = parser.parse_args()
 
-    main(args.seed, args.n_dsets, args.n_layers, args.n_neurons, args.basedir )
+    run_sims(args.seed, args.n_dsets, args.n_layers, args.n_neurons, args.basedir )
+
+if __name__=="__main__":
+    main()

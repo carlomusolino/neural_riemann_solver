@@ -1,5 +1,5 @@
 import argparse 
-from run_sims_ensemble_main import main  
+from .run_sims_ensemble_main import main  
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
