@@ -310,37 +310,48 @@ class ExactRiemannSolver(nn.Module):
                                                                    rho2[shockraref_mask],
                                                                    p2[shockraref_mask],
                                                                    v2[shockraref_mask],self.gamma)
-        
+        def get_dvel(p):
+            dshock_mask = (p>p1) & (p>p2)
+            draref_mask = (p<=p1) & (p<=p2)
+            shockraref_mask = (p<=p1) & (p>p2)
+            dvel=torch.zeros_like(p, device=p.device, dtype=p.dtype)
+            dvel[dshock_mask] = get_relative_velocity_double_shock(p[dshock_mask],
+                                                                rho1[dshock_mask],
+                                                                p1[dshock_mask],
+                                                                v1[dshock_mask],
+                                                                rho2[dshock_mask],
+                                                                p2[dshock_mask],
+                                                                v2[dshock_mask],self.gamma)
+            dvel[draref_mask] = get_relative_velocity_double_raref(p[draref_mask],
+                                                                rho1[draref_mask],
+                                                                p1[draref_mask],
+                                                                v1[draref_mask],
+                                                                rho2[draref_mask],
+                                                                p2[draref_mask],
+                                                                v2[draref_mask],self.gamma)
+            dvel[shockraref_mask] = get_relative_velocity_shock_raref(p[shockraref_mask],
+                                                                   rho1[shockraref_mask],
+                                                                   p1[shockraref_mask],
+                                                                   v1[shockraref_mask],
+                                                                   rho2[shockraref_mask],
+                                                                   p2[shockraref_mask],
+                                                                   v2[shockraref_mask],self.gamma)
+            return dvel
+            
         # Get mins and maxs for rootfinding 
-        pmin = torch.zeros_like(rho1)
-        pmax = torch.zeros_like(rho1)
-        
-        pmin[dshock_mask]     = torch.max(p1[dshock_mask],p2[dshock_mask]) + 1e-45
-        
-        pmin[shockraref_mask] = torch.min(p1[shockraref_mask],p2[shockraref_mask])
-        pmax[draref_mask]     = torch.min(p1[draref_mask],p2[draref_mask])
-        pmax[shockraref_mask] = torch.max(p1[shockraref_mask],p2[shockraref_mask])
-        pmin[draref_mask]     = pmax[draref_mask]
-        # Find pmax for the double shock case
-        pmax[dshock_mask] = pmin[dshock_mask]
-        cmask = torch.zeros_like(pmax[dshock_mask], dtype=torch.bool)
+        pmin = (p1+p2)*0.5
+        pmax = pmin.clone()
+        cmask = torch.zeros_like(pmax, dtype=torch.bool)
         while(True):
-            pmax[dshock_mask] = torch.where(cmask, pmax[dshock_mask], 2*pmax[dshock_mask] )
-            cmask = f_dshock(pmin[dshock_mask]) * f_dshock(pmax[dshock_mask]) <= 0 
+            pmax = torch.where(cmask, pmax, 2*pmax )
+            pmin = torch.where(cmask, pmin, 0.5*pmin)
+            cmask = get_dvel(pmax) * get_dvel(pmin) <= 0 
             if torch.all(cmask):
                 break
-            if torch.any(pmax[dshock_mask]>1e10):
-                print(f"Warning {dshock_mask.sum() - cmask.sum()} roots are not bracketed in d_shock")
+            if torch.any(pmax>1e10) or torch.any(pmin<1e-15):
+                print(f"Warning {cmask.size(0) - cmask.sum()} roots are not bracketed in d_shock")
                 break 
-        cmask = torch.zeros_like(pmin[draref_mask], dtype=torch.bool)
-        while(True):
-            pmin[draref_mask] = torch.where(cmask, pmin[draref_mask], 0.5*pmin[draref_mask] )
-            cmask = f_draref(pmin[draref_mask]) * f_draref(pmax[draref_mask]) <= 0 
-            if torch.all(cmask):
-                break
-            if torch.any(pmin[draref_mask]<1e-15):
-                print(f"Warning {draref_mask.sum() - cmask.sum()}  roots are not bracketed in d_raref")
-                break 
+
         
         press_c = torch.zeros_like(pmax)
         convergence_mask = torch.zeros_like(pmax, dtype=torch.bool)
