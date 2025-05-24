@@ -81,23 +81,37 @@ Each test directory contains:
 * `results.pkl` — simulation output,
 * `timers.pkl` — timing information.
 
----
-
 ### Running the Full Test Suite
 
-To run a resolution study and second-order WENO tests:
+To run a full battery of shocktube tests across different resolutions and solvers, including optional first- and second-order methods, use the `run-sims` CLI tool:
 
 ```bash
 run-sims --seed <SEED> --n_neurons <N_NEURONS> \
-    --n_dsets <N_DSETS> --n_layers <N_LAYERS> --basedir <BDIR>
+         --n_dsets <N_DSETS> --n_layers <N_LAYERS> \
+         --basedir <MODEL_DIR> [--do_first_order] [--do_second_order] \
+         [--resolutions <LIST>] [--solvers <LIST>]
 ```
 
-**Example:**
+By default, first-order tests are enabled, and second-order tests are off. You can disable first-order tests explicitly with `--no_first_order`, and enable second-order tests with `--do_second_order`. Possible solvers are "ml", "hlle", "hllc" and "exact".
+
+**Example (run all tests for the main model used in the paper):**
 
 ```bash
 run-sims --seed 42 --n_neurons 64 \
-    --n_dsets 131072 --n_layers 2 --basedir models
+         --n_dsets 131072 --n_layers 2 \
+         --basedir models --do_second_order
 ```
+
+**Example (only second-order tests at selected resolutions):**
+
+```bash
+run-sims --seed 42 --n_neurons 64 \
+         --n_dsets 131072 --n_layers 2 \
+         --basedir models --no_first_order --do_second_order \
+         --resolutions 200 400 800 1600
+```
+
+Each run will produce structured output in `${MODEL_DIR}/prob_#/`, with separate subfolders for `fo/` (first-order) and `so/` (second-order) results.
 
 ---
 
