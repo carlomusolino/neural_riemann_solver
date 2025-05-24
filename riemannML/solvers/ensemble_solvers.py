@@ -17,10 +17,6 @@ import yaml
 import numpy as np
 import matplotlib.pyplot as plt
 
-# PySINDy
-import pysindy as ps
-
-
 import torch.nn.init as init
 
 from hydro.hlle_solver import HLLESolver
