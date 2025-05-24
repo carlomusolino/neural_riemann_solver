@@ -140,6 +140,7 @@ class ExactRiemannSolver(nn.Module):
         lambda_CR[rarefshock_mask] = lambda_R[rarefshock_mask]
         if draref_mask.any():
             xi = torch.zeros(draref_mask.sum(), device=device, dtype=dtype)
+            # Signs here are NOT a bug, just an unfortunate convention in this function
             rho_RL[draref_mask], p_RL[draref_mask], _, _, _, v_RL[draref_mask] = raref(xi, rho1[draref_mask], p1[draref_mask], v1[draref_mask], self.gamma,+1)
             rho_RR[draref_mask], p_RR[draref_mask], _, _, _, v_RR[draref_mask] = raref(xi, rho2[draref_mask], p2[draref_mask], v2[draref_mask], self.gamma,-1)
             h_RL[draref_mask] = get_h(rho_RL[draref_mask], p_RL[draref_mask], self.gamma)

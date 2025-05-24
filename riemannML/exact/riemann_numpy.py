@@ -218,6 +218,12 @@ def solve_riemann_problem(rhol,pl,vell,rhor,pr,velr,gamma,x,t,xc=0.,save_to_file
         pmax = 2.*pmax 
     p = get_p(pmin,pmax,1e-10,rhol,pl,vell,rhor,pr,velr,gamma)
     print(f"Found pressure {p}")
+    if ( (p > pr) and (p<=pl)):
+        print("Shock rarefaction")
+    if ( (p>pr) and (p>pl) ): 
+        print("double shock")
+    if ( (p<=pr) and (p<=pl)):
+        print("double raref")
     (rhols,epsls,hls,csls,vells,vshockl) = get_vel(p,rhol,pl,vell,-1,gamma)
     (rhors,epsrs,hrs,csrs,velrs,vshockr) = get_vel(p,rhor,pr,velr,+1,gamma)   
     
@@ -244,8 +250,6 @@ def solve_riemann_problem(rhol,pl,vell,rhor,pr,velr,gamma,x,t,xc=0.,save_to_file
     eps = np.zeros(x.shape)
     csnd = np.zeros(x.shape)
     vel = np.zeros(x.shape)
-    
-    print(f"x2 {x2}, xi2 {x2/t}, x1 {x1}, xi1 {x1/t}")
     
     for i in range(len(x)):
         xi = (x[i]-xc)/t 

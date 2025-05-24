@@ -72,7 +72,7 @@ def run_shocktube(id, solver, gamma, t_end=0.4, CFL=0.8, tstep='euler', device=N
     U0, _ = oned_shocktube(rhol, rhor, pl, pr, vl, vr, solver.x, solver.nx, solver.ngz, gamma, device, dtype)
     
     dt = CFL * solver.h
-    t = torch.linspace(0, t_end, int(t_end / dt) + 1)
+    t = torch.linspace(0, t_end, int(t_end / dt) + 1, device=device, dtype=dtype)
     
     with torch.no_grad(): solution = odeint(solver, U0, t, method=tstep)
     
