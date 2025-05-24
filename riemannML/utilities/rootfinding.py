@@ -33,7 +33,7 @@ def newton_solver(func, dfunc, x0, tol=5e-7, max_iter=20):
 
     return x
 
-def bisection_solver(func, pmin, pmax, tol=1e-7):
+def bisection_solver(func, pmin, pmax, tol=1e-7, verbose=False):
     orig_dtype = pmin.dtype 
     
     # Inside the solver we always want doubles
@@ -52,11 +52,9 @@ def bisection_solver(func, pmin, pmax, tol=1e-7):
     root_found_mask_L = fmin == 0 
     root_found_mask_R = fmax == 0 
 
-    if torch.all(invalid_mask):
-        raise ValueError("No valid roots: Function values must bracket the root.")
-    if torch.any(invalid_mask):
+    if torch.any(invalid_mask) and verbose:
         print(f"WARNING: In bisection {torch.sum(~mask)}/{pmin.size(0)} roots are not bracketed")
-    if nanmask.any():
+    if nanmask.any() and verbose:
         print(f"WARNING: {torch.isnan(fmin).sum() + torch.isnan(fmax).sum()} nan entries")
         print(f"NaN index {nanmask.nonzero()}")
         print(f"NaN pmin/pmax {pmin[nanmask]}/{pmax[nanmask]}")

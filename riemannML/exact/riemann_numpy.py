@@ -222,9 +222,7 @@ def solve_riemann_problem(rhol,pl,vell,rhor,pr,velr,gamma,x,t,xc=0.,save_to_file
     (rhors,epsrs,hrs,csrs,velrs,vshockr) = get_vel(p,rhor,pr,velr,+1,gamma)   
     
     vels = (vells+velrs) / 2.
-    print(vels)
-    print((vels-csls)/(1.-vels*csls))
-    print((vell-csl)/(1.-vell*csl))
+
     if( pl > p):
         x1 = xc + (vell-csl)/(1.-vell*csl)*t 
         x2 = xc + (vels-csls)/(1.-vels*csls)*t

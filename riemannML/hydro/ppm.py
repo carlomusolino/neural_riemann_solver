@@ -1,6 +1,6 @@
 import torch
 import torch.nn.functional as F
-from .limiters import minmod 
+
 
 def slope(aj,ajp1,ajm1):
     daj  = 0.5 * (ajp1-aj) + 0.5 * ( aj - ajm1 )

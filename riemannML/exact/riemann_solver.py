@@ -1,7 +1,6 @@
 import torch 
 import numpy as np
-from scipy.optimize import brentq
-from scipy.optimize import newton
+
 from riemannML.utilities.rootfinding import newton_solver, brent_solver, bisection_solver 
 
 DSHOCK     = 0 

@@ -6,10 +6,7 @@ import torch.nn.init as init
 import torch.nn.functional as F
 from torchdiffeq import odeint_adjoint as odeint
 
-from torch.utils.data import DataLoader, TensorDataset, random_split
 import numpy as np
-
-from riemannML.exact.hybrid_eos import hybrid_eos
 
 from .hlle_solver import HLLESolver
 

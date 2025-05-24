@@ -5,7 +5,7 @@ setup(
     version="1.0",
     packages=find_packages(),
     install_requires=[
-        "torch", "torchdiffeq", "numpy", "matplotlib"
+        "torch", "torchdiffeq", "numpy", "scipy", "matplotlib"
     ],
     entry_points={
         'console_scripts': [

@@ -8,21 +8,17 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.nn.init as init 
 import torch.nn.functional as F
-from torchdiffeq import odeint_adjoint as odeint
-
-from torch.utils.data import DataLoader, TensorDataset
-
 import numpy as np
 import matplotlib.pyplot as plt
 
 
 import torch.nn.init as init
 
-from hydro.hlle_solver import HLLESolver
+from riemannML.hydro.hlle_solver import HLLESolver
 
 
-from exact.riemann_solver import get_vel_shock, get_vel_raref, get_csnd, classify_wave_pattern, get_eps, get_csnd, get_h, raref
-from exact.rootfinding import bisection_solver
+from riemannML.exact.riemann_solver import get_vel_shock, get_vel_raref, get_csnd, classify_wave_pattern, get_csnd, get_h, raref
+from riemannML.utilities.rootfinding import bisection_solver
 
 def get_relative_velocity_double_shock(p3, rho1,p1,v1,rho2,p2,v2, gamma):
     _, _, _, _, v3 , _ = get_vel_shock(p3,rho1,p1,v1,-1,gamma)
@@ -319,11 +315,11 @@ class ExactRiemannSolver(nn.Module):
         pmax = torch.zeros_like(rho1)
         
         pmin[dshock_mask]     = torch.max(p1[dshock_mask],p2[dshock_mask]) + 1e-45
-        pmin[draref_mask]     = 1e-45
+        
         pmin[shockraref_mask] = torch.min(p1[shockraref_mask],p2[shockraref_mask])
         pmax[draref_mask]     = torch.min(p1[draref_mask],p2[draref_mask])
         pmax[shockraref_mask] = torch.max(p1[shockraref_mask],p2[shockraref_mask])
-        
+        pmin[draref_mask]     = pmax[draref_mask]
         # Find pmax for the double shock case
         pmax[dshock_mask] = pmin[dshock_mask]
         cmask = torch.zeros_like(pmax[dshock_mask], dtype=torch.bool)
@@ -332,29 +328,29 @@ class ExactRiemannSolver(nn.Module):
             cmask = f_dshock(pmin[dshock_mask]) * f_dshock(pmax[dshock_mask]) <= 0 
             if torch.all(cmask):
                 break
-            if torch.any(pmax>1e10):
-                print(f"Warning exiting with {dshock_mask.sum() - cmask.sum()} roots that are not bracketed")
-                #print(f"p1 rho1 v1 {p1[dshock_mask][~cmask]}, {rho1[dshock_mask][~cmask]}, {v1[dshock_mask][~cmask]},")
-                #print(f"p2 rho2 v2 {p2[dshock_mask][~cmask]}, {rho2[dshock_mask][~cmask]}, {v2[dshock_mask][~cmask]},")
+            if torch.any(pmax[dshock_mask]>1e10):
+                print(f"Warning {dshock_mask.sum() - cmask.sum()} roots are not bracketed in d_shock")
                 break 
-            
+        cmask = torch.zeros_like(pmin[draref_mask], dtype=torch.bool)
+        while(True):
+            pmin[draref_mask] = torch.where(cmask, pmin[draref_mask], 0.5*pmin[draref_mask] )
+            cmask = f_draref(pmin[draref_mask]) * f_draref(pmax[draref_mask]) <= 0 
+            if torch.all(cmask):
+                break
+            if torch.any(pmin[draref_mask]<1e-15):
+                print(f"Warning {draref_mask.sum() - cmask.sum()}  roots are not bracketed in d_raref")
+                break 
+        
         press_c = torch.zeros_like(pmax)
         convergence_mask = torch.zeros_like(pmax, dtype=torch.bool)
         
         # Solve for p
-        #print(f'going into dshock with {dshock_mask.sum()} points')
         if dshock_mask.any(): press_c[dshock_mask], convergence_mask[dshock_mask] = bisection_solver(f_dshock, pmin[dshock_mask], pmax[dshock_mask], 1e-15) 
-        #print(f'going into draref with {draref_mask.sum()} points')
         if draref_mask.any(): press_c[draref_mask], convergence_mask[draref_mask] = bisection_solver(f_draref, pmin[draref_mask], pmax[draref_mask], 1e-15)
-        #print(f'going into rarefshock with {shockraref_mask.sum()} points')
         if shockraref_mask.any(): press_c[shockraref_mask], convergence_mask[shockraref_mask] = bisection_solver(f_rarefshock, pmin[shockraref_mask], pmax[shockraref_mask], 1e-15)
         press_c[vacuum_mask] = 1e-15 
         convergence_mask[vacuum_mask] = True
-        
-        #if not convergence_mask.all():
-        #    print(f"rho {rho1[~convergence_mask]} {rho2[~convergence_mask]} ")
-        #    print(f"press {p1[~convergence_mask]} {p2[~convergence_mask]} ")
-        #    print(f"vel {v1[~convergence_mask]} {v2[~convergence_mask]} ")
+
         # Solve for P_CL, P_CR
         rho_RL, rho_RR, rho_CL, rho_CR, lambda_C, lambda_L, lambda_CL, lambda_CR, lambda_R, h_CL, h_CR, h_RL, h_RR, v_RL, v_RR, p_RL, p_RR = self._get_central_states(press_c, rho1,p1,v1, rho2,p2,v2, dshock_mask, draref_mask, shockraref_mask)
 
