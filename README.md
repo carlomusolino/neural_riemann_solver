@@ -26,14 +26,14 @@ The package is organized under the `riemannML/` directory:
 
 ## Reproducing Results
 
-The main entry points are in the `scripts/` directory.
+The main entry points are exposed through command-line scripts after installing the package.
 
 ### Train the main model (used in the paper)
 
-To train the main solver model, run:
+To train the main solver model used in the Paper, run:
 
 ```bash
-python train_models_script.py --seed 42 --n_neurons 64 --n_dsets 131072 --batch 128 --n_layers 2
+train-model --seed 42 --n_neurons 64 --n_dsets 131072 --batch 128 --n_layers 2
 ```
 
 This produces model weights in:
@@ -88,14 +88,14 @@ Each test directory contains:
 To run a resolution study and second-order WENO tests:
 
 ```bash
-python run_sims_script.py --seed <SEED> --n_neurons <N_NEURONS> \
+run-sims --seed <SEED> --n_neurons <N_NEURONS> \
     --n_dsets <N_DSETS> --n_layers <N_LAYERS> --basedir <BDIR>
 ```
 
 **Example:**
 
 ```bash
-python run_sims_script.py --seed 42 --n_neurons 64 \
+run-sims --seed 42 --n_neurons 64 \
     --n_dsets 131072 --n_layers 2 --basedir models
 ```
 
@@ -106,7 +106,7 @@ python run_sims_script.py --seed 42 --n_neurons 64 \
 To run tests using an ensemble of models (as described in the paper's appendix):
 
 ```bash
-python run_sims_ensemble_script.py --seed_combination <SEED1,SEED2,...> \
+run-sims-ensemble --seed_combination <SEED1,SEED2,...> \
     --n_neurons <N_NEURONS> --n_dsets <N_DSETS> \
     --n_layers <N_LAYERS> --basedir <BDIR>
 ```
