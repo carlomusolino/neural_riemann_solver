@@ -18,30 +18,29 @@ def minmod(a, b):
     cond = (a*b > 0)
     return torch.where(cond, torch.sign(a)*torch.minimum(a.abs(), b.abs()), torch.zeros_like(a))
 
-def mc2(a,b):
-    def mc2(a, b):
-        """
-        Computes the MC2 limiter function, commonly used in numerical methods for solving 
-        hyperbolic partial differential equations to limit oscillations near discontinuities.
+def mc2(a, b):
+    """
+    Computes the MC2 limiter function, commonly used in numerical methods for solving 
+    hyperbolic partial differential equations to limit oscillations near discontinuities.
 
-        The function takes two input tensors `a` and `b`, and applies a combination of 
-        minmod and other limiting techniques to produce a result that ensures stability 
-        and avoids spurious oscillations.
+    The function takes two input tensors `a` and `b`, and applies a combination of 
+    minmod and other limiting techniques to produce a result that ensures stability 
+    and avoids spurious oscillations.
 
-        Args:
-            a (torch.Tensor): A tensor representing the first input values.
-            b (torch.Tensor): A tensor representing the second input values.
+    Args:
+        a (torch.Tensor): A tensor representing the first input values.
+        b (torch.Tensor): A tensor representing the second input values.
 
-        Returns:
-            torch.Tensor: A tensor containing the limited values, computed based on the 
-            MC2 limiter formula.
+    Returns:
+        torch.Tensor: A tensor containing the limited values, computed based on the 
+        MC2 limiter formula.
 
-        Notes:
-            - The function assumes that `a` and `b` are tensors of the same shape and 
-              reside on the same device.
-            - The limiter ensures that the output is non-negative and bounded by the 
-              inputs in a way that preserves monotonicity.
-        """
+    Notes:
+        - The function assumes that `a` and `b` are tensors of the same shape and 
+          reside on the same device.
+        - The limiter ensures that the output is non-negative and bounded by the 
+          inputs in a way that preserves monotonicity.
+    """
     c = 0.5 * ( a + b )
     signb = torch.sign(b)
     return signb * torch.max(
